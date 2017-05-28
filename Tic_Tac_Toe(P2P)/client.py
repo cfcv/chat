@@ -1,6 +1,21 @@
 import tkinter as tk
 import socket
 
+
+class Conexão(object):
+	"""docstring for Conexão"""
+	def __init__(self):
+		self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		self.ip = '127.0.0.1'
+		self.port = 5399
+		#Debug
+		print("Client socket created.")
+		
+	def send(self,mss):
+		#Debug
+		print("Enviando mensagem:",mss)
+		self.sock.sendto(mss.encode(), (self.ip,self.port))
+
 class GUI_User(object):
 	"""docstring for GUI_User"""
 	def __init__(self,master): #,conection, address):
@@ -34,6 +49,8 @@ class GUI_User(object):
 
 		#Debug
 		print("Client is running")
+		#socket
+		self.conn = Conexão()
 
 	def enviar(self):
 		self.userText = self.user.get()
@@ -43,20 +60,7 @@ class GUI_User(object):
 			print("No data")
 		else:
 			self.message = "getuser%"+self.userText+"%"+self.senhaText
-			print("Enviando mensagem:",self.message)
-			self.client_socket.sendto(self.message.encode(), (self.ip,self.port))
-
-	def socket_client(self):
-		self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		self.ip = '127.0.0.1'
-		self.port = 5399
-		#debug
-		print("Client socket created.")
-
-	def close_socket(self):
-		self.client_socket.close()
-		#Debug
-		print("Client socket closed.")
+			self.conn.send(self.message)
 
 	def inicializar(self):
 		self.frame1.pack()
@@ -94,6 +98,4 @@ root.geometry('{}x{}'.format(700,500))
 root.configure(background='black')
 interface = GUI_User(root)
 interface.inicializar()
-interface.socket_client()
 root.mainloop()
-interface.close_socket()
