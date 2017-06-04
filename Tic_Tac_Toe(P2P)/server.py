@@ -1,7 +1,22 @@
 import tkinter as tk
 import socket
+import sqlite3
 
-class Conexão(object):
+class DataBase(object):
+	def __init__(self):
+		self.conn = sqlite3.connect('users.db')
+		self.cur = self.conn.cursor()
+		self.cur.executescript('''
+			DROP TABLE IF EXISTS Users;
+			CREATE TABLE Users(
+				login PRIMARY KEY,
+				password VARCHAR(20),
+				victory INTEGER,
+				tie     INTEGER,
+				loss    INTEGER);''')
+
+#-----------------------------------------
+class Conexão_Server(object):
 	"""docstring for Conexão"""
 	def __init__(self):
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -24,6 +39,7 @@ class Conexão(object):
 			if(len(self.data) > 0):
 				print("Mensagem: ", self.data)
 				print("From: ", self.addr)
+#-----------------------------------------
 
 class GUI_Server(object):
 	"""docstring for GUI_Server"""
@@ -37,12 +53,17 @@ class GUI_Server(object):
 		
 		#Debug
 		print("Server is running")		
+#-----------------------------------------
 
-	def inicializar(self):
-		self.conn = Conexão()
-		self.conn.wait_message()
-		#self.bd = BD()
+class Servidor(object):
 
+	def __init__(self, master):
+		self.connection = Conexão_Server()
+		self.interface = GUI_Server(master)
+		self.DB = DataBase()
+		self.connection.wait_message()
+
+		
 
 root = tk.Tk()
 root.title('Projeto Infracom(Server)')
@@ -51,6 +72,7 @@ root.resizable(width=False, height=False)
 root.geometry('{}x{}'.format(700,500))
 root.configure(background='black')
 
-interface = GUI_Server(root)
-interface.inicializar()
+interface = Servidor(root)
 root.mainloop()
+
+
